@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEditor;
 using UnityEngine;
 
 namespace Assets
@@ -27,6 +28,21 @@ namespace Assets
             var objects = GameObject.FindGameObjectsWithTag(childTag);
             foreach (var obj in objects)
                 obj.transform.parent = parent.transform;
+        }
+
+        public static UnityEngine.Object LoadWeapon(string name)
+        {
+            return AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Weapons/"+name+".prefab", typeof(GameObject));
+        }
+
+        public static void StopScene()
+        {
+            Time.timeScale = 0;
+        }
+
+        public static void StartScene()
+        {
+            Time.timeScale = 1;
         }
     }
 }

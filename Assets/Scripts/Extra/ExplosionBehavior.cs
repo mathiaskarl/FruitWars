@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Extra
 {
     public class ExplosionBehavior : MonoBehaviour
     {
@@ -15,18 +14,24 @@ namespace Assets.Scripts
         private Vector3 _screenPosition;
         private Vector3 _worldPosition;
 
+        private bool _explosionInitialized = false;
         private bool _handlingExplosion = false;
 
-        void Start()
+        protected void StartExplosion()
         {
             Initialize();
             CalculateScreenRadius();
+            this._explosionInitialized = true;
         }
 
-        void Update()
+        protected bool UpdateExplosion()
         {
-            if(!this._handlingExplosion)
+            if (!this._handlingExplosion && this._explosionInitialized)
+            {
                 HandleExplosion();
+                return true;
+            }
+            return false;
         }
 
         private void Initialize()

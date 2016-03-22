@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using Assets.Scripts.Extra;
+using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Environment
 {
     public class TerrainGenerator : MonoBehaviour
     {
@@ -11,11 +13,32 @@ namespace Assets.Scripts
 
         private Vector3 TerrainSize {  get {  return Camera.main.ScreenToWorldPoint(new Vector3(this.TerrainSizeX, this.TerrainSizeY));} }
         private Vector3 _currentTerrainSize = new Vector3(0, 0);
-        private bool _isTerrainComplete = false;
+
+        public float CurrentTerrainSizeRatio
+        {
+            get
+            {
+                if (!(this._currentTerrainSizeRatioHolder > 0))
+                {
+                    var result = Camera.main.WorldToScreenPoint(new Vector3(TerrainObject.gameObject.transform.localScale.x * 2, TerrainObject.gameObject.transform.localScale.y, TerrainObject.gameObject.transform.localScale.z)).x;
+                    this._currentTerrainSizeRatioHolder = result - Camera.main.WorldToScreenPoint(TerrainObject.gameObject.transform.localScale).x;
+                }
+                return this._currentTerrainSizeRatioHolder;
+            }
+        }
+        private float _currentTerrainSizeRatioHolder;
+        
+
+        void Start()
+        {
+            Global.TerrainNullPoint = this.gameObject.transform.position;
+            Global.TerrainEndPoint = TerrainSize*this.CurrentTerrainSizeRatio;
+            Util.StopScene();
+        }
 	
         void Update ()
         {
-            if(!this._isTerrainComplete)
+            if(!Global.IsTerrainGenerated)
                 GenerateTerrainOnUpdate();
         }
 
@@ -30,9 +53,10 @@ namespace Assets.Scripts
         {
             for (int i = 0; i < 50; i++)
             {
-                if (!(this._currentTerrainSize.x < this.TerrainSize.x))
+                if (!(Camera.main.WorldToScreenPoint(this._currentTerrainSize).x < (TerrainSizeX * this.CurrentTerrainSizeRatio)))
                 {
-                    this._isTerrainComplete = true;
+                    Global.IsTerrainGenerated = true;
+                    Util.StartScene();
                     return;
                 }
 
@@ -46,7 +70,7 @@ namespace Assets.Scripts
         private Vector3 AssignTerrainObjectSize()
         {
             var x = TerrainObject.gameObject.transform.localScale.x;
-            var y = this.TerrainSize.y *
+            var y = (this.TerrainSize.y / 2) *
                     Mathf.PerlinNoise(_currentTerrainSize.x * 0.01f,
                         Mathf.Sqrt(_currentTerrainSize.x < 0 ? _currentTerrainSize.x*-1 : _currentTerrainSize.x));
 

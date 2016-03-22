@@ -22,4 +22,9 @@ namespace Assets
             this.Degree = degree;
         }
     }
+
+    public enum Direction
+    {
+        Up, Down
+    }
 }
